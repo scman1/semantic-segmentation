@@ -1,5 +1,6 @@
 #script that runs segmentation over a given set of unlabelled data
 #[1] Libraries needed
+import sys
 from pathlib import Path
 import random
 import matplotlib.image as image_mgr
@@ -38,19 +39,28 @@ def segment_this(model, filename):
    print(instances)
    image_mgr.imsave(instances, visualise_instances(predicted_instances, predicted_class, num_classes=5))
     
+def segment_images(argv):
+   print('Argument List:', argv)
+   try:
+     epoch = argv[0]
+   except:
+       print("provide int number of epoch to validate")
+        
+   #[2] create model and instance cluster
+   model = SemanticInstanceSegmentation() #From network
 
-#[2] create model and instance cluster
-model = SemanticInstanceSegmentation() #From network
+   #[3] Evaluate ** need to load model to evaluate
+   model.load_state_dict(torch.load('models/epoch_'+str(epoch)))
+   model.eval()
 
-#[3] Evaluate ** need to load model to evaluate
-model.load_state_dict(torch.load('models/epoch_26'))
-model.eval()
+   #[4]Evaluate on full images
+   #1 data/slides_subset/010646725_816445_1431072.JPG
+   #2 data/slides_subset/010646726_816445_1431072.JPG
+   #3 data/slides_subset/010646727_816445_1431072.JPG
+   for filename in Path('data', 'slides_subset').iterdir():
+     if not "labels" in filename.name and not "instances" in filename.name and not "classes" in filename.name:
+       segment_this(model, filename)
+       #break
 
-#[4]Evaluate on full images
-#1 data/slides_subset/010646725_816445_1431072.JPG
-#2 data/slides_subset/010646726_816445_1431072.JPG
-#3 data/slides_subset/010646727_816445_1431072.JPG
-for filename in Path('data', 'nhm_test_180625_resized').iterdir():
-  if not "labels" in filename.name and not "instances" in filename.name and not "classes" in filename.name:
-    segment_this(model, filename)
-    #break
+if __name__ == "__main__":
+   segment_images(sys.argv[1:])

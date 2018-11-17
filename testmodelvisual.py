@@ -58,7 +58,9 @@ def validate_epoch(argv):
     test_loader_unlabelled = torch.utils.data.DataLoader(test_data_unlabelled, batch_size=batch_size, drop_last=True, shuffle=True)
     test_loader = SemiSupervisedDataLoader(test_loader_labelled, test_loader_unlabelled)
 
-
+    print (test_data_labelled.class_to_idx)
+    print (test_data_labelled.colours)
+    
     #[4] test model
 
     model.load_state_dict(torch.load('models/epoch_'+str(epoch)))
@@ -100,7 +102,7 @@ def validate_epoch(argv):
     axes[2, 0].imshow(current_instances.cpu().numpy().squeeze())
     axes[1, 1].set_title('Predicted classes')
     axes[1, 1].imshow(predicted_class.cpu().numpy().squeeze())
-    instance_image = visualise_instances(predicted_instances, predicted_class, num_classes=5)
+    instance_image = visualise_instances(predicted_instances, predicted_class, num_classes=5)   
     axes[2, 1].set_title('Predicted instances')
     axes[2, 1].imshow(instance_image)
     plt.show()
